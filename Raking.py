@@ -493,3 +493,4 @@ if __name__ == '__main__':
     df = ipfn_df.weighting()
     print(df)
     print(df.groupby('size')['total'].sum(), xpjp)
+    
