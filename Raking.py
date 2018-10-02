@@ -28,10 +28,10 @@ class ipfn(object):
         rate_tolerance: float value. If above 0.0, like 0.001, the algorithm will stop once the difference between the conv_rate variable of 2 consecutive iterations is below that specified value
         For examples, please open the ipfn script or look for help on functions ipfn_np and ipfn_df
         """
-        df['total'] = 1
+        #df['total'] = 1
         self.unique_dimensions = np.unique([item for sublist in dimensions for item in sublist]).tolist()
         self.df = df
-        self.original = df.groupby(self.unique_dimensions)['total'].count().reset_index()
+        self.original = df.groupby(self.unique_dimensions)['total'].sum().reset_index()
         self.aggregates = aggregates
         self.dimensions = dimensions
         self.weight_col = weight_col
@@ -161,7 +161,7 @@ class ipfn(object):
         tables = [df]
         for inc in range(steps - 1):
             tables.append(df.copy())
-        original = df.copy()
+        #original = df.copy()
 
         # Calculate the new weights for each dimension
         inc = 0
@@ -173,14 +173,17 @@ class ipfn(object):
                 table_update = tables[inc + 1]
                 table_current = tables[inc]
 
-            tmp = table_current.groupby(features)[weight_col].sum()
+            tmp = table_current.groupby(features)[weight_col].sum().copy()
             xijk = aggregates[inc]
 
             feat_l = []
             for feature in features:
                 feat_l.append(np.unique(table_current[feature]))
-            table_update.set_index(features, inplace=True)
-            table_current.set_index(features, inplace=True)
+            if len(aggregates)==1 :
+                table_update.set_index(features, inplace=True)
+            else:
+                table_update.set_index(features, inplace=True)
+                table_current.set_index(features, inplace=True)
 
             for feature in product(*feat_l):
                 den = tmp.loc[feature]
